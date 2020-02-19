@@ -9,6 +9,7 @@
 #define CGPIO_H_
 #include <map>
 #include "pigpio/pigpio.h"
+#include "CSpi.h"
 
 using namespace std;
 
@@ -22,6 +23,11 @@ public:
 	const int SPI_ERROR_BAD_FLGS = (-7);
 	const int SPI_ERROR_AUX_SPI = (-8);
 	const int SPI_ERROR_OPEN_FAILED = (-9);
+	const int SPI_ERROR_NOT_OPEN = (-10);
+	const int SPI_ERROR_BAD_HANDLE	= (-11);
+	const int SPI_ERROR_BAD_COUNT	= (-12);
+	const int SPI_ERROR_XFER_FAILED = (-13);
+
 	const int GPIO_FATAL_ERROR = (int)(0xFFFF);
 
 protected:
@@ -38,7 +44,7 @@ protected:
 		SPI_CONFIG_INDEX_RESERVED_CE0,
 		SPI_CONFIG_INDEX_RESERVED_CE1,
 		SPI_CONFIG_INDEX_RESERVED_CE2,
-		SPI_CONFIG_INDEX_SPI_MODE,
+		SPI_CONFIG_INDEX_SPI_CHANNEL,
 		SPI_CONFIG_INDEX_MAX,
 	};
 
@@ -55,8 +61,8 @@ protected:
 			(1 << SPI_CONFIG_INDEX_RESERVED_CE1);
 	const uint32_t SPI_CONFIG_FLG_CE2_RESERVED_FOR_SPI =
 			(1 << SPI_CONFIG_INDEX_RESERVED_CE2);
-	const uint32_t SPI_CONFIG_FLG_SPI_MODE =
-			(1 << SPI_CONFIG_INDEX_SPI_MODE);
+	const uint32_t SPI_CONFIG_FLG_SPI_CHANNEL =
+			(1 << SPI_CONFIG_INDEX_SPI_CHANNEL);
 
 protected:
 	CGpio();
@@ -65,18 +71,21 @@ public:
 	virtual ~CGpio();
 
 public:
-	static void Initialize();
-	static void Finalize();
 	static CGpio* GetInstance();
 
 	int		SetMode(uint8_t pin, uint8_t direction);
 	uint8_t	GetMode(uint8_t pin);
-	virtual	int		SetSpi(const CSpi* spi_config);
-	virtual	int		SetSpi(const int spi_clock, const uint32_t spi_flg);
+	virtual int SetSpi(const CSpi& spi_config);
+	virtual int SetSpi(const int spi_clock, const uint32_t spi_flg);
+	virtual void CloseSpi();
+	virtual int SpiRead(uint8_t* data, const uint32_t data_size);
+	virtual int SpiWrite(const uint8_t* data, const uint32_t data_size);
 
 protected:
-	virtual	void DeactivateCe(const uint32_t spi_flg);
-	virtual	void DeactivateCe(
+	virtual void Initialize();
+	virtual void Finalize();
+	virtual void DeactivateCe(const uint32_t spi_flg);
+	virtual void DeactivateCe(
 			const int pin,
 			const uint32_t spi_flg,
 			const int spi_flg_index);
