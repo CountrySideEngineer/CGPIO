@@ -2,7 +2,7 @@
  * CSpi.h
  *
  *  Created on: 2020/02/16
- *      Author: KENSUKE
+ *      Author: CountrySideEngineer
  */
 
 #ifndef CSPI_H_
