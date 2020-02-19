@@ -55,29 +55,26 @@ public:
 public:
 	CSpi();
 	CSpi(SPI_CHANNEL channel,
-			SPI_MODE mode_ce_0,
-			SPI_MODE mode_ce_1,
-			SPI_ACTIVE_MODE active_mode_0,
-			SPI_ACTIVE_MODE active_mode_1,
-			SPI_ACTIVE_MODE active_mode_2,
+			SPI_MODE mode,
+			SPI_ACTIVE_MODE active_mode_ce0,
+			SPI_ACTIVE_MODE active_mode_ce1,
+			SPI_ACTIVE_MODE active_mode_ce2,
 			SPI_CLOCK spi_clock);
 	virtual ~CSpi();
 
 	SPI_CHANNEL			GetChannel() const { return this->channel_; }
-	SPI_MODE			GetMode_CE0() const { return this->mode_ce_0_; }
-	SPI_MODE			GetMode_CE1() const { return this->mode_ce_1_; }
-	SPI_ACTIVE_MODE 	GetActiveMode0() const { return this->active_mode_0_; }
-	SPI_ACTIVE_MODE 	GetActiveMode1() const { return this->active_mode_1_; }
-	SPI_ACTIVE_MODE 	GetActiveMode2() const { return this->active_mode_2_; }
+	SPI_MODE			GetMode() const { return this->mode_; }
+	SPI_ACTIVE_MODE 	GetActiveMode0() const { return this->active_mode_ce0_; }
+	SPI_ACTIVE_MODE 	GetActiveMode1() const { return this->active_mode_ce1_; }
+	SPI_ACTIVE_MODE 	GetActiveMode2() const { return this->active_mode_ce2_; }
 	SPI_CLOCK			GetClock() const { return this->comm_clock_; }
 
 protected:
 	SPI_CHANNEL		channel_;
-	SPI_MODE		mode_ce_0_;
-	SPI_MODE		mode_ce_1_;
-	SPI_ACTIVE_MODE	active_mode_0_;
-	SPI_ACTIVE_MODE active_mode_1_;
-	SPI_ACTIVE_MODE active_mode_2_;
+	SPI_MODE		mode_;
+	SPI_ACTIVE_MODE	active_mode_ce0_;
+	SPI_ACTIVE_MODE active_mode_ce1_;
+	SPI_ACTIVE_MODE active_mode_ce2_;
 	SPI_CLOCK		comm_clock_;
 };
 
