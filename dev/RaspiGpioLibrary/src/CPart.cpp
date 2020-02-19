@@ -51,13 +51,10 @@ uint32_t CPart::SetSpi(CSpi* spi_config)
 {
 	assert(NULL != spi_config);
 
-	uint32_t spi_flg = ((uint32_t)spi_config->GetChannel()) +
+	uint32_t spi_flg = (spi_config->GetMode() +
 			(((uint32_t)spi_config->GetActiveMode0()) << 2) +
 			(((uint32_t)spi_config->GetActiveMode1()) << 3) +
-			(((uint32_t)spi_config->GetActiveMode2()) << 4) +
-			(((uint32_t)spi_config->GetMode_CE0()) << 5) +
-			(((uint32_t)spi_config->GetMode_CE1()) << 6) +
-			(((uint32_t)spi_config->GetChannel()) << 8);
+			(((uint32_t)spi_config->GetActiveMode2()) << 4));
 	CGpio* instance = CGpio::GetInstance();
 	instance->SetSpi(spi_config->GetClock(), spi_flg);
 
