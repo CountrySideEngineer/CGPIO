@@ -9,11 +9,12 @@
 #define CPART_H_
 #include "pigpio/pigpio.h"
 #include "CSpi.h"
+#include "CGpio.h"
 
 class CPart {
 public:
 	CPart();
-	CPart(uint8_t pin, uint8_t mode);
+	CPart(CGpio* gpio, uint8_t pin, uint8_t mode, uint32_t chattering_time = 0);
 	virtual ~CPart();
 
 	uint8_t		GetPin() const { return this->pin_; }
@@ -30,6 +31,7 @@ public:
 
 
 protected:
+	CGpio*		gpio_;
 	uint8_t		pin_;
 	uint8_t		mode_;
 	uint32_t	chattering_time_;

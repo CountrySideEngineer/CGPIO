@@ -94,6 +94,7 @@ protected:
 			const int spi_flg_index);
 
 protected:
+	CGpio*		gpio_;
 	int			spi_handle_;
 	uint32_t	spi_flgs_;
 };

@@ -14,23 +14,33 @@
  * @brief	Default constructor.
  */
 CPart::CPart()
-	: pin_(0)
+	: gpio_(NULL)
+	, pin_(0)
 	, mode_(0)
 	, chattering_time_(0)
 {}
 
 /**
- * @brief	Constructor with arguemnt.
- * @param	pin	The GPIO pin number the parts uses.
- * @param	mode	The GPIO pin access direction, input or output.
+ * @brief	Constructor with parameters, GPIO pin number, GPIO access direction
+ * 			input or output, and pointer to GPIO abstracting object.
+ * @param[in]	gpio	Pointer to object abstracting GPIO, H/W interface.
+ * @param	pin	GPIO pin number the part uses.
+ * @param	mode	GPIO pin access mode, input or output.
+ * @param	chattering_time	Time to wait while H/W chattering.
+ * 							The default value is zero, meaning no chattering
+ * 							wait.
  */
-CPart::CPart(const uint8_t pin, const uint8_t mode)
-	: pin_(pin)
-	, mode_(mode)
-	, chattering_time_(0)
+CPart::CPart(
+		CGpio* gpio,
+		uint8_t pin,
+		uint8_t mode,
+		uint32_t chattering_time)
+: gpio_(gpio)
+, pin_(pin)
+, mode_(mode)
+, chattering_time_(0)
 {
-	CGpio* instance = CGpio::GetInstance();
-	instance->SetMode(this->pin_, this->mode_);
+	this->gpio_->SetMode(this->pin_, this->mode_);
 }
 
 /**
