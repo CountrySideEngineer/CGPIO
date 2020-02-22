@@ -19,6 +19,8 @@ CGpio::CGpio()
 	: spi_handle_(-1)
 	, spi_flgs_(0)
 {
+	this->isr_pin_map_.clear();
+
 	CGpio::Initialize();
 }
 
@@ -99,6 +101,41 @@ int CGpio::SetMode(uint8_t pin, uint8_t direction)
 uint8_t CGpio::GetMode(uint8_t pin)
 {
 	return gpioGetMode(pin);
+}
+
+/**
+ * @param	Register interrupt object called when an interrutp detected on
+ * 			the GPIO pin.
+ * @param	pin	GPIO pin number an interrupt to be detected.
+ * @param	edge	The change type the interrupt to be detected, hight to low
+ * 					(low edge), low to high (high edge), or both.
+ * @param	part	Pointer to object to handle the interruption.
+ * @return	Returns the result of regist. Returns 0 if the regist succeeded,
+ * 			otherwise return none-zero value.
+ */
+int CGpio::SetIsr(uint pin, uint edge, CPart* part)
+{
+	assert(nullptr != part);
+
+	int set_isr_result = GPIO_ERROR_OK;
+	if (this->isr_pin_map_.end() == this->isr_pin_map_.find(pin)) {
+		//The pin has not been registered as interrupt service register.
+		this->isr_pin_map_.insert(make_pair(pin, part));
+		int set_isr_result =
+				gpioSetISRFunc(pin, edge, 0, CGpio::GpioInterruptHandle);
+		if (PI_BAD_GPIO == set_isr_result) {
+			set_isr_result = GPIO_ERROR_GPIO;
+		} else if (PI_BAD_EDGE == set_isr_result) {
+			set_isr_result = GPIO_ISR_BAD_EDGE;
+		} else if (PI_BAD_ISR_INIT == set_isr_result) {
+			set_isr_result = GPIO_ISR_BAD_INIT;
+		} else {
+			set_isr_result = GPIO_ERROR_OK;
+		}
+	} else {
+		set_isr_result = GPIO_ISR_ALREADY_REGISTERED;
+	}
+	return set_isr_result;
 }
 
 /**
@@ -226,6 +263,9 @@ void CGpio::DeactivateCe(
 	}
 }
 
+/**
+ * @brief	Close SPI interface.
+ */
 void CGpio::CloseSpi()
 {
 	if (0 <= this->spi_handle_) {

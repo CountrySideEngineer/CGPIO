@@ -9,6 +9,7 @@
 #define CGPIO_H_
 #include <map>
 #include "pigpio/pigpio.h"
+#include "CPart.h"
 #include "CSpi.h"
 
 using namespace std;
@@ -27,6 +28,9 @@ public:
 	const int SPI_ERROR_BAD_HANDLE	= (-11);
 	const int SPI_ERROR_BAD_COUNT	= (-12);
 	const int SPI_ERROR_XFER_FAILED = (-13);
+	const int GPIO_ISR_ALREADY_REGISTERED = (-14);
+	const int GPIO_ISR_BAD_EDGE = (-15);
+	const int GPIO_ISR_BAD_INIT = (-16);
 
 	const int GPIO_FATAL_ERROR = (int)(0xFFFF);
 
@@ -75,6 +79,7 @@ public:
 
 	int		SetMode(uint8_t pin, uint8_t direction);
 	uint8_t	GetMode(uint8_t pin);
+	virtual int SetIsr(uint pin, uint edge, CPart* part);
 	virtual int SetSpi(const CSpi& spi_config);
 	virtual int SetSpi(const int spi_clock, const uint32_t spi_flg);
 	virtual void CloseSpi();
@@ -87,6 +92,8 @@ public:
 	virtual uint32_t GetSpiFlg() const { return this->spi_flgs_; }
 
 protected:
+	static void GpioInterruptHandle(int gpio, int level, uint32_t tick);
+
 	virtual void DeactivateCe(const uint32_t spi_flg);
 	virtual void DeactivateCe(
 			const int pin,
@@ -97,6 +104,8 @@ protected:
 	CGpio*		gpio_;
 	int			spi_handle_;
 	uint32_t	spi_flgs_;
+
+	map<uint, CPart*> isr_pin_map_;
 };
 
 #endif /* CGPIO_H_ */
