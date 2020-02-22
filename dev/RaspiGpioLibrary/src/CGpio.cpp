@@ -51,6 +51,9 @@ void CGpio::Finalize()
 	this->CloseSpi();
 
 	gpioTerminate();
+
+	this->spi_handle_ = (-1);
+	this->spi_flgs_ = 0;
 }
 
 /**
@@ -140,6 +143,8 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 			this->spi_handle_ = spi_result;
 			this->spi_flgs_ = spi_flg;
 
+			this->DeactivateCe(this->spi_flgs_);
+
 			setup_spi_result = this->spi_handle_;
 		} else {
 			WLOG("SPI open failed.");
@@ -147,6 +152,7 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 			/*
 			 *	When opening SPI failed, reset the SPI handle.
 			 */
+			this->spi_flgs_ = 0;
 			this->spi_handle_ = (-1);	//Reset SPI handle.
 			if (PI_BAD_SPI_CHANNEL == spi_result) {
 				setup_spi_result = SPI_ERROR_BAD_CHANNEL;
@@ -181,7 +187,7 @@ void CGpio::DeactivateCe(const uint32_t spi_flg)
 	int ce_pin_1 = GPIO_PIN_MAIN_CE1;
 	int ce_pin_2 = 0;
 
-	if (0 == (spi_flg & (0x0010))) {
+	if (0 == (spi_flg & (0x0100))) {
 		//Main channel
 		ce_pin_0 = GPIO_PIN_MAIN_CE0;
 		ce_pin_1 = GPIO_PIN_MAIN_CE1;
@@ -211,6 +217,7 @@ void CGpio::DeactivateCe(
 		const uint32_t spi_flg,
 		const int spi_flg_index)
 {
+	gpioSetMode(pin, PI_OUTPUT);
 	if (0 == (spi_flg & (1 << spi_flg_index))) {
 		//	Active when low, to deactivate ce, set GPIO level high.
 		gpioWrite(pin, PI_HIGH);
@@ -221,7 +228,7 @@ void CGpio::DeactivateCe(
 
 void CGpio::CloseSpi()
 {
-	if (0 < this->spi_handle_) {
+	if (0 <= this->spi_handle_) {
 		spiClose(this->spi_handle_);
 
 		this->spi_handle_ = (-1);

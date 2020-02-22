@@ -438,7 +438,7 @@ TEST(CGpio, SpiRead_001)
 
 	spiRead_ret_val[0] = 0;
 
-	CGpio* instance = instance->GetInstance();
+	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
 	int SpiRead_result = instance->SpiRead(&data, data_size);
 	ASSERT_EQ(0, SpiRead_result);
@@ -457,7 +457,8 @@ TEST(CGpio, SpiRead_002)
 
 	spiRead_ret_val[0] = (-25);	//PI_BAD_HANDLE
 
-	CGpio* instance = instance->GetInstance();
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
 	int SpiRead_result = instance->SpiRead(&data, data_size);
 	ASSERT_EQ((-11), SpiRead_result);
 	ASSERT_EQ(1, spiRead_called_count);
@@ -472,7 +473,8 @@ TEST(CGpio, SpiRead_003)
 
 	spiRead_ret_val[0] = (-84);	//PI_BAD_SPI_COUNT
 
-	CGpio* instance = instance->GetInstance();
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
 	int SpiRead_result = instance->SpiRead(&data, data_size);
 	ASSERT_EQ((-12), SpiRead_result);
 	ASSERT_EQ(1, spiRead_called_count);
@@ -487,8 +489,104 @@ TEST(CGpio, SpiRead_004)
 
 	spiRead_ret_val[0] = (-89);	//PI_SPI_XFER_FAILED
 
-	CGpio* instance = instance->GetInstance();
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
 	int SpiRead_result = instance->SpiRead(&data, data_size);
 	ASSERT_EQ((-13), SpiRead_result);
 	ASSERT_EQ(1, spiRead_called_count);
+}
+
+TEST(CGpio, SpiWrite_001)
+{
+	uint8_t data = 0;
+	uint32_t data_size = 1;
+
+	spiWrite_init();
+
+	spiWrite_ret_val[0] = 0;
+
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
+	int SpiWrite_result = instance->SpiWrite(&data, data_size);
+	ASSERT_EQ(0, SpiWrite_result);
+	ASSERT_EQ(1, spiWrite_called_count);
+	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+}
+
+TEST(CGpio, SpiWrite_002)
+{
+	uint8_t data = 0;
+	uint32_t data_size = 1;
+
+	spiWrite_init();
+
+	spiWrite_ret_val[0] = (-25);	//PI_BAD_HANDLE
+
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
+	int SpiWrite_result = instance->SpiWrite(&data, data_size);
+	ASSERT_EQ((-11), SpiWrite_result);
+	ASSERT_EQ(1, spiWrite_called_count);
+	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+}
+
+TEST(CGpio, SpiWrite_003)
+{
+	uint8_t data = 0;
+	uint32_t data_size = 1;
+
+	spiWrite_init();
+
+	spiWrite_ret_val[0] = (-25);	//PI_BAD_HANDLE
+
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
+	int SpiWrite_result = instance->SpiWrite(&data, data_size);
+	ASSERT_EQ((-11), SpiWrite_result);
+	ASSERT_EQ(1, spiWrite_called_count);
+	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+}
+
+TEST(CGpio, SpiWrite_004)
+{
+	uint8_t data = 0;
+	uint32_t data_size = 1;
+
+	spiWrite_init();
+
+	spiWrite_ret_val[0] = (-84);	//PI_BAD_SPI_COUNT
+
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
+	int SpiWrite_result = instance->SpiWrite(&data, data_size);
+	ASSERT_EQ((-12), SpiWrite_result);
+	ASSERT_EQ(1, spiWrite_called_count);
+	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+}
+
+TEST(CGpio, SpiWrite_005)
+{
+	uint8_t data = 0;
+	uint32_t data_size = 1;
+
+	spiWrite_init();
+
+	spiWrite_ret_val[0] = (-89);	//PI_SPI_XFER_FAILED
+
+	CGpio* instance = CGpio::GetInstance();
+	instance->Finalize();
+	int SpiWrite_result = instance->SpiWrite(&data, data_size);
+	ASSERT_EQ((-13), SpiWrite_result);
+	ASSERT_EQ(1, spiWrite_called_count);
+	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
 }

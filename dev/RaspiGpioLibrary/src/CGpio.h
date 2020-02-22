@@ -80,10 +80,13 @@ public:
 	virtual void CloseSpi();
 	virtual int SpiRead(uint8_t* data, const uint32_t data_size);
 	virtual int SpiWrite(const uint8_t* data, const uint32_t data_size);
-
-protected:
 	virtual void Initialize();
 	virtual void Finalize();
+
+	virtual int GetSpiHandle() const { return this->spi_handle_; }
+	virtual uint32_t GetSpiFlg() const { return this->spi_flgs_; }
+
+protected:
 	virtual void DeactivateCe(const uint32_t spi_flg);
 	virtual void DeactivateCe(
 			const int pin,
