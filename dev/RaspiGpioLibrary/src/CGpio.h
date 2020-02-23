@@ -92,7 +92,7 @@ public:
 	virtual uint32_t GetSpiFlg() const { return this->spi_flgs_; }
 
 protected:
-	static void GpioInterruptHandle(int gpio, int level, uint32_t tick);
+	static void GpioInterruptHandle(int gpio, int level, uint32_t tick) {}
 
 	virtual void DeactivateCe(const uint32_t spi_flg);
 	virtual void DeactivateCe(

@@ -7,6 +7,7 @@
 #include <iostream>
 #include "gtest/gtest.h"
 #include "CGpio.h"
+#include "CPart.h"
 #include "gpio_stub.h"
 
 using namespace std;
@@ -590,3 +591,132 @@ TEST(CGpio, SpiWrite_005)
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
 	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
 }
+
+TEST(CGpio, SetIsr_001)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = 0;
+
+	int SetIsr_result = instance->SetIsr(1, 2, &part);
+	ASSERT_EQ(0, SetIsr_result);
+	ASSERT_EQ(1, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, SetIsr_002)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = 0;
+
+	instance->SetIsr(1, 2, &part);
+	int SetIsr_result = instance->SetIsr(1, 3, &part);
+	ASSERT_EQ((-14), SetIsr_result);
+	ASSERT_EQ(1, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, SetIsr_003)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = (-3);	//PI_BAD_GPIO
+
+	int SetIsr_result = instance->SetIsr(1, 2, &part);
+	ASSERT_EQ((-3), SetIsr_result);		//GPIO_ERROR_GPIO
+	ASSERT_EQ(1, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, SetIsr_004)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = (-122);	//PI_BAD_EDGE
+
+	int SetIsr_result = instance->SetIsr(1, 2, &part);
+	ASSERT_EQ((-15), SetIsr_result);		//GPIO_ISR_BAD_EDGE
+	ASSERT_EQ(1, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, SetIsr_005)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = (-123);	//PI_BAD_ISR_INIT
+
+	int SetIsr_result = instance->SetIsr(1, 2, &part);
+	ASSERT_EQ((-16), SetIsr_result);		//GPIO_ISR_BAD_EDGE
+	ASSERT_EQ(1, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, SetIsr_006)
+{
+	CPart part;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	gpioSetISRFunc_init();
+	gpioSetISRFunc_ret_val[0] = 0;
+	gpioSetISRFunc_ret_val[1] = 0;
+
+	int SetIsr_result = instance->SetIsr(1, 2, &part);
+	ASSERT_EQ(0, SetIsr_result);
+	SetIsr_result = instance->SetIsr(3, 4, &part);
+	ASSERT_EQ(0, SetIsr_result);
+	ASSERT_EQ(2, gpioSetISRFunc_called_count);
+	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)3, gpioSetISRFunc_arg_1[1]);
+	ASSERT_EQ((uint)4, gpioSetISRFunc_arg_2[1]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
+	ASSERT_EQ(0, gpioSetISRFunc_arg_3[1]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
+	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[1]);
+
+	instance->Finalize();
+}
+

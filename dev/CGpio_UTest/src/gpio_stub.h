@@ -48,7 +48,7 @@ extern int gpioTerminate_ret_val[];
 /*--------------------------------*/
 extern void gpioSetMode_init();
 extern int gpioSetMode(
-	uint Arg1, 
+	uint Arg1,
 	uint Arg2);
 extern int gpioSetMode_called_count;
 extern int gpioSetMode_ret_val[];
@@ -126,7 +126,7 @@ extern uint gpioRead_arg_1[];
 /*------------------------------*/
 extern void gpioWrite_init();
 extern int gpioWrite(
-	uint Arg1, 
+	uint Arg1,
 	uint Arg2);
 extern int gpioWrite_called_count;
 extern int gpioWrite_ret_val[];
@@ -156,8 +156,8 @@ extern uint gpioWrite_arg_2[];
 /*----------------------------*/
 extern void spiOpen_init();
 extern int spiOpen(
-	uint Arg1, 
-	uint Arg2, 
+	uint Arg1,
+	uint Arg2,
 	uint Arg3);
 extern int spiOpen_called_count;
 extern int spiOpen_ret_val[];
@@ -216,8 +216,8 @@ extern uint spiClose_arg_1[];
 /*----------------------------*/
 extern void spiRead_init();
 extern int spiRead(
-	uint Arg1, 
-	char* Arg2, 
+	uint Arg1,
+	char* Arg2,
 	uint Arg3);
 extern int spiRead_called_count;
 extern int spiRead_ret_val[];
@@ -252,8 +252,8 @@ extern uint spiRead_arg_3[];
 /*-----------------------------*/
 extern void spiWrite_init();
 extern int spiWrite(
-	uint Arg1, 
-	char* Arg2, 
+	uint Arg1,
+	char* Arg2,
 	uint Arg3);
 extern int spiWrite_called_count;
 extern int spiWrite_ret_val[];
@@ -280,6 +280,48 @@ extern uint spiWrite_arg_3[];
 	(spiWrite_ret_val[idx])
 #define	SET_SPIWRITE_RET_VAL(idx, value)	\
 	(spiWrite_ret_val[idx] = value)
+
+/*-----------------------------------*/
+/*----                           ----*/
+/*---- Start gpioSetISRFunc stub ----*/
+/*----                           ----*/
+/*-----------------------------------*/
+extern void gpioSetISRFunc_init();
+extern int gpioSetISRFunc(
+	uint Arg1,
+	uint Arg2,
+	int Arg3,
+	gpioISRFunc_t Arg4);
+extern int gpioSetISRFunc_called_count;
+extern int gpioSetISRFunc_ret_val[];
+extern uint gpioSetISRFunc_arg_1[];
+extern uint gpioSetISRFunc_arg_2[];
+extern int gpioSetISRFunc_arg_3[];
+extern gpioISRFunc_t gpioSetISRFunc_arg_4[];
+#define	GET_GPIOSETISRFUNC_CALLED_COUNT()	\
+	(gpioSetISRFunc_called_count)
+#define	SET_GPIOSETISRFUNC_CALLED_COUNT(value)	\
+	(gpioSetISRFunc_called_count = value)
+#define	GET_GPIOSETISRFUNC_ARG_1(idx)	\
+	(gpioSetISRFunc_arg_1[idx])
+#define	SET_GPIOSETISRFUNC_ARG_1(idx, value)	\
+	(gpioSetISRFunc_arg_1[idx] = value)
+#define	GET_GPIOSETISRFUNC_ARG_2(idx)	\
+	(gpioSetISRFunc_arg_2[idx])
+#define	SET_GPIOSETISRFUNC_ARG_2(idx, value)	\
+	(gpioSetISRFunc_arg_2[idx] = value)
+#define	GET_GPIOSETISRFUNC_ARG_3(idx)	\
+	(gpioSetISRFunc_arg_3[idx])
+#define	SET_GPIOSETISRFUNC_ARG_3(idx, value)	\
+	(gpioSetISRFunc_arg_3[idx] = value)
+#define	GET_GPIOSETISRFUNC_ARG_4(idx)	\
+	(gpioSetISRFunc_arg_4[idx])
+#define	SET_GPIOSETISRFUNC_ARG_4(idx, value)	\
+	(gpioSetISRFunc_arg_4[idx] = value)
+#define	GET_GPIOSETISRFUNC_RET_VAL(idx)	\
+	(gpioSetISRFunc_ret_val[idx])
+#define	SET_GPIOSETISRFUNC_RET_VAL(idx, value)	\
+	(gpioSetISRFunc_ret_val[idx] = value)
 
 #ifdef __cplusplus
 }

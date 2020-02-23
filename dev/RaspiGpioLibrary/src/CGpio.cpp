@@ -52,10 +52,20 @@ void CGpio::Finalize()
 {
 	this->CloseSpi();
 
-	gpioTerminate();
+	//Remove ISR handler.
+	for (auto it = this->isr_pin_map_.begin();
+			it != this->isr_pin_map_.end();
+			it++)
+	{
+		uint pin = it->first;
+		gpioSetISRFunc(pin, 0, 0, NULL);
+	}
+	this->isr_pin_map_.clear();
 
+	gpioTerminate();
 	this->spi_handle_ = (-1);
 	this->spi_flgs_ = 0;
+
 }
 
 /**
@@ -121,7 +131,7 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
 	if (this->isr_pin_map_.end() == this->isr_pin_map_.find(pin)) {
 		//The pin has not been registered as interrupt service register.
 		this->isr_pin_map_.insert(make_pair(pin, part));
-		int set_isr_result =
+		set_isr_result =
 				gpioSetISRFunc(pin, edge, 0, CGpio::GpioInterruptHandle);
 		if (PI_BAD_GPIO == set_isr_result) {
 			set_isr_result = GPIO_ERROR_GPIO;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "pigpio/pigpio.h"
 #define GPIO_STUB_BUF_SIZE			(100)
 
 /*-----------------------------------*/
@@ -61,7 +62,7 @@ uint gpioSetMode_arg_1[GPIO_STUB_BUF_SIZE];
 uint gpioSetMode_arg_2[GPIO_STUB_BUF_SIZE];
 int gpioSetMode_ret_val[GPIO_STUB_BUF_SIZE];
 int gpioSetMode(
-	uint gpio, 
+	uint gpio,
 	uint mode)
 {
 	int ret_val =
@@ -169,7 +170,7 @@ uint gpioWrite_arg_1[GPIO_STUB_BUF_SIZE];
 uint gpioWrite_arg_2[GPIO_STUB_BUF_SIZE];
 int gpioWrite_ret_val[GPIO_STUB_BUF_SIZE];
 int gpioWrite(
-	uint gpio, 
+	uint gpio,
 	uint level)
 {
 	int ret_val =
@@ -210,8 +211,8 @@ uint spiOpen_arg_2[GPIO_STUB_BUF_SIZE];
 uint spiOpen_arg_3[GPIO_STUB_BUF_SIZE];
 int spiOpen_ret_val[GPIO_STUB_BUF_SIZE];
 int spiOpen(
-	uint spiChan, 
-	uint baud, 
+	uint spiChan,
+	uint baud,
 	uint spiFlags)
 {
 	int ret_val =
@@ -290,8 +291,8 @@ char* spiRead_arg_2[GPIO_STUB_BUF_SIZE];
 uint spiRead_arg_3[GPIO_STUB_BUF_SIZE];
 int spiRead_ret_val[GPIO_STUB_BUF_SIZE];
 int spiRead(
-	uint handle, 
-	char *buf, 
+	uint handle,
+	char *buf,
 	uint count)
 {
 	int ret_val =
@@ -336,8 +337,8 @@ char* spiWrite_arg_2[GPIO_STUB_BUF_SIZE];
 uint spiWrite_arg_3[GPIO_STUB_BUF_SIZE];
 int spiWrite_ret_val[GPIO_STUB_BUF_SIZE];
 int spiWrite(
-	uint handle, 
-	char *buf, 
+	uint handle,
+	char *buf,
 	uint count)
 {
 	int ret_val =
@@ -368,5 +369,57 @@ void spiWrite_init()
 		spiWrite_arg_2[idx] = NULL;
 		spiWrite_arg_3[idx] = 0;
 		spiWrite_ret_val[idx] = 0;
+	}
+}
+
+/*-----------------------------------*/
+/*----                           ----*/
+/*---- Start gpioSetISRFunc stub ----*/
+/*----                           ----*/
+/*-----------------------------------*/
+int gpioSetISRFunc_called_count;
+uint gpioSetISRFunc_arg_1[GPIO_STUB_BUF_SIZE];
+uint gpioSetISRFunc_arg_2[GPIO_STUB_BUF_SIZE];
+int gpioSetISRFunc_arg_3[GPIO_STUB_BUF_SIZE];
+gpioISRFunc_t gpioSetISRFunc_arg_4[GPIO_STUB_BUF_SIZE];
+int gpioSetISRFunc_ret_val[GPIO_STUB_BUF_SIZE];
+int gpioSetISRFunc(
+	uint gpio,
+	uint edge,
+	int timeout,
+	gpioISRFunc_t f)
+{
+	int ret_val =
+		gpioSetISRFunc_ret_val
+		[gpioSetISRFunc_called_count];
+
+	gpioSetISRFunc_arg_1
+		[gpioSetISRFunc_called_count] =
+			gpio;
+	gpioSetISRFunc_arg_2
+		[gpioSetISRFunc_called_count] =
+			edge;
+	gpioSetISRFunc_arg_3
+		[gpioSetISRFunc_called_count] =
+			timeout;
+	gpioSetISRFunc_arg_4
+		[gpioSetISRFunc_called_count] =
+			f;
+
+	gpioSetISRFunc_called_count++;
+
+	return (ret_val);
+}
+void gpioSetISRFunc_init()
+{
+	int idx = 0;
+
+	gpioSetISRFunc_called_count = 0;
+	for (idx = 0; idx < GPIO_STUB_BUF_SIZE; idx++) {
+		gpioSetISRFunc_arg_1[idx] = 0;
+		gpioSetISRFunc_arg_2[idx] = 0;
+		gpioSetISRFunc_arg_3[idx] = 0;
+		gpioSetISRFunc_arg_4[idx] = 0;
+		gpioSetISRFunc_ret_val[idx] = 0;
 	}
 }
