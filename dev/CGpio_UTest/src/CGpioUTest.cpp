@@ -720,3 +720,88 @@ TEST(CGpio, SetIsr_006)
 	instance->Finalize();
 }
 
+TEST(CGpio, Write_001)
+{
+	gpioWrite_init();
+
+	uint8_t pin = 1;
+	uint8_t level = 0;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	instance->Write(pin, level);
+
+	ASSERT_EQ(1, gpioWrite_called_count);
+	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)0, gpioWrite_arg_2[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, Write_002)
+{
+	gpioWrite_init();
+
+	uint8_t pin = 1;
+	uint8_t level = 1;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	instance->Write(pin, level);
+
+	ASSERT_EQ(1, gpioWrite_called_count);
+	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, Write_003)
+{
+	gpioWrite_init();
+
+	uint8_t pin = 1;
+	uint8_t level = 2;
+
+	CGpio* instance = CGpio::GetInstance();
+
+	instance->Write(pin, level);
+
+	ASSERT_EQ(1, gpioWrite_called_count);
+	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, Read_001)
+{
+	gpioRead_init();
+
+	gpioRead_ret_val[0] = 0;
+
+	CGpio* instance = CGpio::GetInstance();
+	uint8_t pin = 1;
+	uint8_t read_value = instance->Read(pin);
+
+	ASSERT_EQ(1, gpioRead_called_count);
+	ASSERT_EQ(0, read_value);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, Read_002)
+{
+	gpioRead_init();
+
+	gpioRead_ret_val[0] = 1;
+
+	CGpio* instance = CGpio::GetInstance();
+	uint8_t pin = 1;
+	uint8_t read_value = instance->Read(pin);
+
+	ASSERT_EQ(1, gpioRead_called_count);
+	ASSERT_EQ(1, read_value);
+
+	instance->Finalize();
+}

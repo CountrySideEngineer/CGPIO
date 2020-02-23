@@ -114,6 +114,33 @@ uint8_t CGpio::GetMode(uint8_t pin)
 }
 
 /**
+ * @brief	Write GPIO pin level. If the value is 0, the pin is set low,
+ * 			otherwise it is set high.
+ * @param	pin	GPIO pin number.
+ */
+void CGpio::Write(uint8_t pin, uint8_t value)
+{
+	uint value_to_write = 0;
+	if (0 == value) {
+		value_to_write = PI_LOW;
+	} else {
+		value_to_write = PI_HIGH;
+	}
+	gpioWrite(pin, value_to_write);
+}
+
+/**
+ * @brief	Read GPIO pin level, low or high.
+ * @param	pin	GPIO pin number.
+ * @return	Returns the GPIO pin level. Returns 0 if it is low, otherwise
+ * 			returns 1.
+ */
+uint8_t CGpio::Read(uint8_t pin)
+{
+	return (uint8_t)gpioRead(pin);
+}
+
+/**
  * @param	Register interrupt object called when an interrutp detected on
  * 			the GPIO pin.
  * @param	pin	GPIO pin number an interrupt to be detected.

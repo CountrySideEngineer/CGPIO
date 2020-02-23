@@ -87,18 +87,3 @@ void CPart::SetMode(uint8_t mode)
 	this->mode_ = mode;
 	this->gpio_->SetMode(this->pin_, this->mode_);
 }
-
-uint32_t CPart::SetSpi(CSpi* spi_config)
-{
-	assert(NULL != spi_config);
-
-	uint32_t spi_flg = (spi_config->GetMode() +
-			(((uint32_t)spi_config->GetActiveMode0()) << 2) +
-			(((uint32_t)spi_config->GetActiveMode1()) << 3) +
-			(((uint32_t)spi_config->GetActiveMode2()) << 4));
-	CGpio* instance = CGpio::GetInstance();
-	instance->SetSpi(spi_config->GetClock(), spi_flg);
-
-	return 0;
-}
-

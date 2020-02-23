@@ -29,10 +29,8 @@ public:
 
 	virtual void InterruptCallback(uint32_t state);
 
-	virtual uint32_t SetSpi(CSpi* spi_config);
-
-	uint32_t Read();
-	void Write(uint32_t value);
+	virtual uint8_t Read() { return 0; }
+	virtual void Write(uint8_t value) {}
 
 protected:
 	CGpio*		gpio_;
