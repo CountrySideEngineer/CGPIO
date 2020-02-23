@@ -2,33 +2,37 @@
  * CPart.h
  *
  *  Created on: 2020/02/09
- *      Author: KENSUKE
+ *      Author: CountrySideEngineer
  */
 
 #ifndef CPART_H_
 #define CPART_H_
 #include "pigpio/pigpio.h"
 #include "CSpi.h"
-#include "CGpio.h"
 
+class CGpio;
+
+/**
+ * @class	Class for a H/W using GPIO or other pin via GPIO library.
+ */
 class CPart {
 public:
 	CPart();
+	CPart(CGpio* gpio);
 	CPart(CGpio* gpio, uint8_t pin, uint8_t mode, uint32_t chattering_time = 0);
 	virtual ~CPart();
 
-	uint8_t		GetPin() const { return this->pin_; }
-	void		SetPin(uint8_t pin) { this->pin_ = pin; }
-	uint8_t		GetMode() const { return this->mode_; }
-	void		SetMode(uint8_t mode) { this->mode_ = mode; }
+	virtual void SetPin(uint8_t pin);
+	virtual uint8_t GetPin() const { return this->pin_; }
+	virtual void SetMode(uint8_t mode);
+	virtual uint8_t GetMode() const { return this->mode_; }
 
-	virtual	void		InterruptCallback(uint32_t state);
+	virtual void InterruptCallback(uint32_t state);
 
-	virtual	uint32_t	SetSpi(CSpi* spi_config);
+	virtual uint32_t SetSpi(CSpi* spi_config);
 
-	uint32_t	Read();
-	void		Write(uint32_t value);
-
+	uint32_t Read();
+	void Write(uint32_t value);
 
 protected:
 	CGpio*		gpio_;

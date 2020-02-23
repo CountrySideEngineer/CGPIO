@@ -21,6 +21,17 @@ CPart::CPart()
 {}
 
 /**
+ * @brief	Constructor with parameter pointer to GPIO abstracting object
+ */
+CPart::CPart(CGpio* gpio)
+: gpio_(gpio)
+, pin_(0)
+, mode_(0)
+, chattering_time_(0)
+{}
+
+
+/**
  * @brief	Constructor with parameters, GPIO pin number, GPIO access direction
  * 			input or output, and pointer to GPIO abstracting object.
  * @param[in]	gpio	Pointer to object abstracting GPIO, H/W interface.
@@ -56,6 +67,26 @@ CPart::~CPart() {}
  * 			method.
  */
 void CPart::InterruptCallback(uint32_t state) {}
+
+/**
+ * @brief	Setup GPIO pin.
+ * @param	pin	GPIO pin number.
+ */
+void CPart::SetPin(uint8_t pin)
+{
+	this->pin_ = pin;
+	this->gpio_->SetMode(this->pin_, this->mode_);
+}
+
+/**
+ * @brief	Setup GPIO pin access direction.
+ * @param	mode	GPIO pin access direction.
+ */
+void CPart::SetMode(uint8_t mode)
+{
+	this->mode_ = mode;
+	this->gpio_->SetMode(this->pin_, this->mode_);
+}
 
 uint32_t CPart::SetSpi(CSpi* spi_config)
 {
