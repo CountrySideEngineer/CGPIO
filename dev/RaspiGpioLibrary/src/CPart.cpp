@@ -49,7 +49,7 @@ CPart::CPart(
 : gpio_(gpio)
 , pin_(pin)
 , mode_(mode)
-, chattering_time_(0)
+, chattering_time_(chattering_time)
 {
 	this->gpio_->SetMode(this->pin_, this->mode_);
 }
@@ -86,4 +86,28 @@ void CPart::SetMode(uint8_t mode)
 {
 	this->mode_ = mode;
 	this->gpio_->SetMode(this->pin_, this->mode_);
+}
+
+/**
+ * @brief	Read GPIO pin level, low or high, the H/W part uses.
+ * @returns	GPIO pin level. Returns 0 if the pin level is low, otherwise
+ * 			returns 1.
+ */
+uint8_t CPart::Read()
+{
+	assert(nullptr != this->gpio_);
+
+	return this->gpio_->Read(this->pin_);
+}
+
+/**
+ * @brief	Write GPIO pin.
+ * @param	value	Pin level to write into the pin.
+ */
+void CPart::Write(uint8_t value)
+{
+	assert(nullptr != this->gpio_);
+
+	this->gpio_->Write(this->pin_, value);
+
 }

@@ -29,8 +29,8 @@ public:
 
 	virtual void InterruptCallback(uint32_t state);
 
-	virtual uint8_t Read() { return 0; }
-	virtual void Write(uint8_t value) {}
+	virtual uint8_t Read();
+	virtual void Write(uint8_t value);
 
 protected:
 	CGpio*		gpio_;
