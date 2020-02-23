@@ -12,6 +12,8 @@
 #include "CPart.h"
 #include "CSpi.h"
 
+class CPart;
+
 using namespace std;
 
 class CGpio {

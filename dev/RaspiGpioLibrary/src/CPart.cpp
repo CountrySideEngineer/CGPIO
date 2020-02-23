@@ -8,28 +8,15 @@
 #include "CPart.h"
 #include "pigpio/pigpio.h"
 #include "CGpio.h"
-#include "CSpi.h"
 
 /**
  * @brief	Default constructor.
  */
 CPart::CPart()
-	: gpio_(NULL)
-	, pin_(0)
-	, mode_(0)
-	, chattering_time_(0)
-{}
-
-/**
- * @brief	Constructor with parameter pointer to GPIO abstracting object
- */
-CPart::CPart(CGpio* gpio)
-: gpio_(gpio)
-, pin_(0)
+: pin_(0)
 , mode_(0)
 , chattering_time_(0)
 {}
-
 
 /**
  * @brief	Constructor with parameters, GPIO pin number, GPIO access direction
@@ -41,18 +28,11 @@ CPart::CPart(CGpio* gpio)
  * 							The default value is zero, meaning no chattering
  * 							wait.
  */
-CPart::CPart(
-		CGpio* gpio,
-		uint8_t pin,
-		uint8_t mode,
-		uint32_t chattering_time)
-: gpio_(gpio)
-, pin_(pin)
+CPart::CPart(uint8_t pin, uint8_t mode, uint32_t chattering_time)
+: pin_(pin)
 , mode_(mode)
 , chattering_time_(chattering_time)
-{
-	this->gpio_->SetMode(this->pin_, this->mode_);
-}
+{}
 
 /**
  * @brief	Destructor.
@@ -75,7 +55,9 @@ void CPart::InterruptCallback(uint32_t state) {}
 void CPart::SetPin(uint8_t pin)
 {
 	this->pin_ = pin;
-	this->gpio_->SetMode(this->pin_, this->mode_);
+
+	CGpio* gpio = CGpio::GetInstance();
+	gpio->SetMode(this->pin_, this->mode_);
 }
 
 /**
@@ -85,7 +67,9 @@ void CPart::SetPin(uint8_t pin)
 void CPart::SetMode(uint8_t mode)
 {
 	this->mode_ = mode;
-	this->gpio_->SetMode(this->pin_, this->mode_);
+
+	CGpio* gpio = CGpio::GetInstance();
+	gpio->SetMode(this->pin_, this->mode_);
 }
 
 /**
@@ -95,9 +79,8 @@ void CPart::SetMode(uint8_t mode)
  */
 uint8_t CPart::Read()
 {
-	assert(nullptr != this->gpio_);
-
-	return this->gpio_->Read(this->pin_);
+	CGpio* gpio = CGpio::GetInstance();
+	return gpio->Read(this->pin_);
 }
 
 /**
@@ -106,8 +89,6 @@ uint8_t CPart::Read()
  */
 void CPart::Write(uint8_t value)
 {
-	assert(nullptr != this->gpio_);
-
-	this->gpio_->Write(this->pin_, value);
-
+	CGpio* gpio = CGpio::GetInstance();
+	gpio->Write(this->pin_, value);
 }
