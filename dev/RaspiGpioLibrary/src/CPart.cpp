@@ -6,7 +6,6 @@
  */
 #include <assert.h>
 #include "CPart.h"
-#include "pigpio/pigpio.h"
 #include "CGpio.h"
 
 /**

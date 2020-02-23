@@ -7,7 +7,7 @@
 
 #ifndef CPART_H_
 #define CPART_H_
-#include "pigpio/pigpio.h"
+#include <cstdint>
 
 /**
  * @class	Class for a H/W using GPIO or other pin via GPIO library.

@@ -8,7 +8,6 @@
 #ifndef CGPIO_H_
 #define CGPIO_H_
 #include <map>
-#include "pigpio/pigpio.h"
 #include "CPart.h"
 #include "CSpi.h"
 
