@@ -28,6 +28,8 @@ public:
 
 	virtual uint8_t Read();
 	virtual void Write(uint8_t value);
+	virtual uint32_t Send(uint8_t* data, uint32_t data_size);
+	virtual uint32_t Recv(uint8_t* data, uint32_t data_size);
 
 protected:
 	uint8_t		pin_;
