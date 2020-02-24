@@ -161,7 +161,7 @@ TEST(CPart, Recv_001)
 	ASSERT_EQ(1, spiRead_called_count);
 	ASSERT_EQ((uint)0, send_result);
 	ASSERT_EQ((void*)(&data), spiRead_arg_2[0]);
-	ASSERT_EQ(2, spiRead_arg_3[0]);
+	ASSERT_EQ((uint)2, spiRead_arg_3[0]);
 }
 
 TEST(CPart, Recv_002)
@@ -179,7 +179,7 @@ TEST(CPart, Recv_002)
 	ASSERT_EQ(1, spiRead_called_count);
 	ASSERT_EQ((uint)(-1), send_result);
 	ASSERT_EQ((void*)(&data), spiRead_arg_2[0]);
-	ASSERT_EQ(2, spiRead_arg_3[0]);
+	ASSERT_EQ((uint)2, spiRead_arg_3[0]);
 }
 
 TEST(CPart, Recv_003)
@@ -197,5 +197,5 @@ TEST(CPart, Recv_003)
 	ASSERT_EQ(1, spiRead_called_count);
 	ASSERT_EQ((uint)1, send_result);
 	ASSERT_EQ((void*)(&data), spiRead_arg_2[0]);
-	ASSERT_EQ(2, spiRead_arg_3[0]);
+	ASSERT_EQ((uint)2, spiRead_arg_3[0]);
 }
