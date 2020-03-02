@@ -14,6 +14,18 @@
  */
 class CPart {
 public:
+	enum GPIO_PIN_LEVEL {
+		GPIO_PIN_LOW = 0,
+		GPIO_PIN_HIGH,
+		GPIO_PIN_LEVEL_MAX
+	};
+	enum GPIO_PIN_DIRECTION {
+		GPIO_PIN_INPUT,
+		GPIO_PIN_OUTPUT,
+		GPIO_PIN_DIRECTION_MAX
+	};
+
+public:
 	CPart();
 	CPart(uint8_t pin, uint8_t mode, uint32_t chattering_time = 0);
 	virtual ~CPart();
