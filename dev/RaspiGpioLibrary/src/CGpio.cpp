@@ -202,6 +202,12 @@ int CGpio::SetSpi(const CSpi& spi_config)
  */
 int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 {
+	/*
+	 * Deactivate Chip sElect(CE) pin before setup SPI.
+	 * If the CE pin is not deactivated before the SPI setup, the receive
+	 * action can not work. No data can be received.
+	 */
+	this->DeactivateCe(this->spi_flgs_);
 	int setup_spi_result = this->spi_handle_;
 	if (0 <= this->spi_handle_) {
 		DLOG("SPI has already opened.");
@@ -216,8 +222,6 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 
 			this->spi_handle_ = spi_result;
 			this->spi_flgs_ = spi_flg;
-
-			this->DeactivateCe(this->spi_flgs_);
 
 			setup_spi_result = this->spi_handle_;
 		} else {
