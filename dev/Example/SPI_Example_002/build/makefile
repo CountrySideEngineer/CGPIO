@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: libcgpio_0_2_0.so
+all: SPI_Example_002
 
 # Tool invocations
-libcgpio_0_2_0.so: $(OBJS) $(USER_OBJS)
+SPI_Example_002: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-linux-gnueabihf-g++ -shared -o "libcgpio_0_2_0.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-linux-gnueabihf-g++  -o "SPI_Example_002" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(LIBRARIES)$(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(C_DEPS)$(CPP_DEPS) libcgpio_0_2_0.so
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(C_DEPS)$(CPP_DEPS) SPI_Example_002
 	-@echo ' '
 
 .PHONY: all clean dependents

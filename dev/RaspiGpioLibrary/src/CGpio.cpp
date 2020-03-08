@@ -190,6 +190,8 @@ int CGpio::SetSpi(const CSpi& spi_config)
 	spi_flg |= (spi_config.GetActiveMode2() << SPI_CONFIG_INDEX_ACTIVE_MODE_CE2);
 	spi_flg |= (spi_config.GetChannel() << SPI_CONFIG_INDEX_SPI_CHANNEL);
 
+	DLOG("SPI configuration : 0x%08X", spi_flg);
+
 	return this->SetSpi(spi_config.GetClock(), spi_flg);
 }
 
@@ -202,6 +204,12 @@ int CGpio::SetSpi(const CSpi& spi_config)
  */
 int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 {
+	/*
+	 * Deactivate Chip sElect(CE) pin before setup SPI.
+	 * If the CE pin is not deactivated before the SPI setup, the receive
+	 * action can not work. No data can be received.
+	 */
+	this->DeactivateCe(this->spi_flgs_);
 	int setup_spi_result = this->spi_handle_;
 	if (0 <= this->spi_handle_) {
 		DLOG("SPI has already opened.");
@@ -217,8 +225,6 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 			this->spi_handle_ = spi_result;
 			this->spi_flgs_ = spi_flg;
 
-			this->DeactivateCe(this->spi_flgs_);
-
 			setup_spi_result = this->spi_handle_;
 		} else {
 			WLOG("SPI open failed.");
@@ -230,16 +236,22 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 			this->spi_handle_ = (-1);	//Reset SPI handle.
 			if (PI_BAD_SPI_CHANNEL == spi_result) {
 				setup_spi_result = SPI_ERROR_BAD_CHANNEL;
+				WLOG("SPI error bad channel");
 			} else if (PI_BAD_SPI_SPEED == spi_result) {
 				setup_spi_result = SPI_ERROR_BAD_SPEED;
+				WLOG("SPI error bad speed");
 			} else if (PI_BAD_FLAGS == spi_result) {
 				setup_spi_result = SPI_ERROR_BAD_FLGS;
+				WLOG("SPI error bad flags");
 			} else if (PI_NO_AUX_SPI == spi_result) {
 				setup_spi_result = SPI_ERROR_AUX_SPI;
+				WLOG("SPI error aux spi");
 			} else if (PI_SPI_OPEN_FAILED == spi_result) {
 				setup_spi_result = SPI_ERROR_OPEN_FAILED;
+				WLOG("SPI error open failed.");
 			} else {
 				setup_spi_result = GPIO_FATAL_ERROR;
+				ELOG("SPI fatal error");
 			}
 		}
 	}
@@ -247,7 +259,7 @@ int CGpio::SetSpi(const int spi_clock, const uint32_t spi_flg)
 }
 
 #define	GPIO_PIN_MAIN_CE0	(8)
-#define	GPIO_PIN_MAIN_CE1	(9)
+#define	GPIO_PIN_MAIN_CE1	(7)
 #define	GPIO_PIN_AUX_CE0	(18)
 #define	GPIO_PIN_AUX_CE1	(17)
 #define	GPIO_PIN_AUX_CE2	(16)
@@ -330,12 +342,16 @@ int CGpio::SpiRead(uint8_t* data, const uint32_t data_size)
 	int read_result = GPIO_FATAL_ERROR;
 	int read_byte = spiRead(this->spi_handle_, (char*)data, data_size);
 	if (PI_BAD_HANDLE == read_byte) {
+		WLOG("SPI error bad handle");
 		read_result = SPI_ERROR_BAD_HANDLE;
 	} else if (PI_BAD_SPI_COUNT == read_byte) {
+		WLOG("SPI error bad count");
 		read_result = SPI_ERROR_BAD_COUNT;
 	} else if (PI_SPI_XFER_FAILED == read_byte) {
+		WLOG("SPI error xfer failed");
 		read_result = SPI_ERROR_XFER_FAILED;
 	} else {
+		DLOG("SPI read data size : %d byte.", read_byte);
 		read_result = read_byte;
 	}
 	return read_result;
@@ -356,12 +372,16 @@ int CGpio::SpiWrite(const uint8_t* data, const uint32_t data_size)
 	int write_result = GPIO_FATAL_ERROR;
 	int write_byte = spiWrite(this->spi_handle_, (char*)data, data_size);
 	if (PI_BAD_HANDLE == write_byte) {
+		WLOG("SPI error bad handle");
 		write_result = SPI_ERROR_BAD_HANDLE;
 	} else if (PI_BAD_SPI_COUNT == write_byte) {
+		WLOG("SPI error bad count");
 		write_result = SPI_ERROR_BAD_COUNT;
 	} else if (PI_SPI_XFER_FAILED == write_byte) {
+		WLOG("SPI error xfer failed");
 		write_result = SPI_ERROR_XFER_FAILED;
 	} else {
+		DLOG("SPI write data size : %d byte.", write_byte);
 		write_result = write_byte;
 	}
 	return write_result;
