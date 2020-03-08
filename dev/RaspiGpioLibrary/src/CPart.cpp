@@ -91,3 +91,46 @@ void CPart::Write(uint8_t value)
 	CGpio* gpio = CGpio::GetInstance();
 	gpio->Write(this->pin_, value);
 }
+
+/**
+ * @brief	Send data via SPI interface.
+ * @param[in]	data	Pointer to buffer data has been set.
+ * @param	data_size	Size of data to send.
+ * @returns	Returns the sent data size if the sequence finishes successfully,
+ * 			otherwise returns (-1).
+ */
+uint32_t CPart::Send(uint8_t* data, uint32_t data_size)
+{
+	assert(nullptr != data);
+
+	uint32_t send_result = 0;
+	CGpio* instance = CGpio::GetInstance();
+	int write_result = instance->SpiWrite(data, data_size);
+	if (write_result < 0) {
+		send_result = (uint32_t)(-1);	//All bit is 1.
+	} else {
+		send_result = (uint32_t)write_result;
+	}
+	return send_result;
+}
+
+/**
+ * @brief	Receive data via SPI interface.
+ * @param[out]	data	Pointer to buffer to set the received data.
+ * @param	data_size	Size of buffer.
+ * @returns	Returns the size of received data in byte.
+ */
+uint32_t CPart::Recv(uint8_t* data, uint32_t data_size)
+{
+	assert(nullptr != data);
+
+	uint32_t recv_result = 0;
+	CGpio* instance = CGpio::GetInstance();
+	int read_result = instance->SpiRead(data, data_size);
+	if (read_result < 0) {
+		recv_result = (uint32_t)(-1);
+	} else {
+		recv_result = (uint32_t)read_result;
+	}
+	return recv_result;
+}
