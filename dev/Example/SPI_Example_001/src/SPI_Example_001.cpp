@@ -17,7 +17,7 @@
 using namespace std;
 
 #define	PIN_SPI0_CE0		(8)
-#define	PIN_SPI0_CE1		(9)
+#define	PIN_SPI0_CE1		(7)
 #define	SPI_BUFF_SIZE		(10)
 #define	SPI_TX_BUFF_SIZE	(SPI_BUFF_SIZE)
 #define	SPI_RX_BUFF_SIZE	(SPI_BUFF_SIZE)
