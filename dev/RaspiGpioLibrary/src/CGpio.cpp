@@ -175,7 +175,10 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
 	return set_isr_result;
 }
 
-void CGpio::Interrupt(int pin, int level, uint32_t)
+/**
+ * @brief	Call back function when the interrupt is detected.
+ */
+void CGpio::Interrupt(int pin, int level, uint32_t tick)
 {
 	CGpio* instance = CGpio::GetInstance();
 	uint interruptPin = static_cast<uint>(pin);
