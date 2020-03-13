@@ -175,6 +175,32 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
 	return set_isr_result;
 }
 
+void CGpio::Interrupt(int pin, int level, uint32_t)
+{
+	CGpio* instance = CGpio::GetInstance();
+	uint interruptPin = static_cast<uint>(pin);
+	map<uint, CPart*> pin_map = instance->GetPinMap();
+	if (0 == pin_map.count(interruptPin)) {
+		//The interrupt detected pin has not been registered.
+		return;
+	}
+
+	CPart* part = pin_map.at(interruptPin);
+	if (0 == part->GetChatteringTime()) {
+		/*
+		 * In a case that the part does not need to wait for
+		 * stable state of pin level.
+		 */
+		uint32_t state = instance->Read(interruptPin);
+		part->InterruptCallback(state);
+	}
+}
+
+void CGpio::ChatteringTimerDispatcher()
+{
+
+}
+
 /**
  * @brief	Setup SPI by SPI configration bit flags.
  * @param	spi_config	Reference of SPI configuration.

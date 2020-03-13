@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include "gtest/gtest.h"
+#include "pigpio/pigpio.h"
 #include "CGpio.h"
 #include "CPart.h"
 #include "gpio_stub.h"

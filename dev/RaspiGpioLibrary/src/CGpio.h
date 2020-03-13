@@ -77,6 +77,8 @@ public:
 
 public:
 	static CGpio* GetInstance();
+	static void Interrupt(int pin, int level, uint32_t tick);
+	static void ChatteringTimerDispatcher();
 
 	virtual int SetMode(uint8_t pin, uint8_t direction);
 	virtual uint8_t GetMode(uint8_t pin);
@@ -93,6 +95,7 @@ public:
 
 	virtual int GetSpiHandle() const { return this->spi_handle_; }
 	virtual uint32_t GetSpiFlg() const { return this->spi_flgs_; }
+	virtual map<uint, CPart*>& GetPinMap() { return this->isr_pin_map_; }
 
 protected:
 	static void GpioInterruptHandle(int gpio, int level, uint32_t tick) {}
