@@ -4,11 +4,16 @@
  *  Created on: 2020/02/09
  *      Author: CountrySideEngineer
  */
-#include "CGpio.h"
 #include <iostream>
+#include <list>
+#include <vector>
+#include <map>
 #include <assert.h>
 #include "pigpio/pigpio.h"
+#include "CGpio.h"
+#include "CGpioTimer.h"
 #include "Log.h"
+
 
 using namespace std;
 
@@ -20,6 +25,7 @@ CGpio::CGpio()
 	, spi_flgs_(0)
 {
 	this->isr_pin_map_.clear();
+	this->chattering_time_list_.clear();
 
 	CGpio::Initialize();
 }
@@ -177,31 +183,80 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
 
 /**
  * @brief	Call back function when the interrupt is detected.
+ *
+ * @param	pin	GPIO pin the interrupt detected.
+ * @param	level	Levle of GPIO pin the interrupt detected, LOW or HIGH.
+ * @param	tick	The passed tick count
  */
 void CGpio::Interrupt(int pin, int level, uint32_t tick)
 {
 	CGpio* instance = CGpio::GetInstance();
-	uint interruptPin = static_cast<uint>(pin);
-	map<uint, CPart*> pin_map = instance->GetPinMap();
-	if (0 == pin_map.count(interruptPin)) {
+	instance->StartChatteringTime(pin, level);
+}
+
+/**
+ * @brief	Callback function when the timer to check whether the chattering
+ * 			time has expired or not is dispatched.
+ */
+void CGpio::ChatteringTimerDispatcher()
+{
+	CGpio* instance = CGpio::GetInstance();
+	instance->ExpireChatteringTime();
+}
+
+/**
+ * @brief	Start waiting while chattering.
+ *
+ * @param	pin	GPIO pin number.
+ * @param	level	GPIO pin level when the timer starts.
+ */
+void CGpio::StartChatteringTime(int pin, int level)
+{
+	uint interrupt_pin = static_cast<uint>(pin);
+	if (0 == this->isr_pin_map_.count(interrupt_pin)) {
 		//The interrupt detected pin has not been registered.
 		return;
 	}
 
-	CPart* part = pin_map.at(interruptPin);
+	CPart* part = this->isr_pin_map_.at(interrupt_pin);
 	if (0 == part->GetChatteringTime()) {
-		/*
-		 * In a case that the part does not need to wait for
-		 * stable state of pin level.
-		 */
-		uint32_t state = instance->Read(interruptPin);
-		part->InterruptCallback(state);
+		part->InterruptCallback(level);
+	} else {
+		this->StartChatteringTime(part);
 	}
 }
 
-void CGpio::ChatteringTimerDispatcher()
+/**
+ * @brief	Start time to wait while chattering.
+ *
+ * @param[in]	part	Pointer to CPart to wait while chattering.
+ */
+void CGpio::StartChatteringTime(CPart* part)
 {
+	CGpioTimer* timer = new CGpioTimer(part, gpioTick());
+	this->chattering_time_list_.push_back(timer);
+}
 
+/**
+ * @brief	Call interrupt handler of CPart object whose chattering time
+ * 			has expired.
+ */
+void CGpio::ExpireChatteringTime()
+{
+	uint32_t current_tick = gpioTick();
+	auto it = this->chattering_time_list_.begin();
+	while (it != this->chattering_time_list_.end()) {
+		CGpioTimer* gpio_time = *it;
+		if (gpio_time->IsExpires(current_tick)) {
+			auto part = gpio_time->GetPart();
+			uint8_t pin_level = part->Read();
+			part->InterruptCallback(pin_level);
+
+			it = this->chattering_time_list_.erase(it);
+		} else {
+			it++;
+		}
+	}
 }
 
 /**

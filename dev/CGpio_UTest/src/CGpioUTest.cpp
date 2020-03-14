@@ -9,6 +9,7 @@
 #include "pigpio/pigpio.h"
 #include "CGpio.h"
 #include "CPart.h"
+#include "CGpioTimer.h"
 #include "gpio_stub.h"
 
 using namespace std;
@@ -803,6 +804,23 @@ TEST(CGpio, Read_002)
 
 	ASSERT_EQ(1, gpioRead_called_count);
 	ASSERT_EQ(1, read_value);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, StartChatteringTime_001)
+{
+	CPart part(1, 2, 3);
+	CGpio* instance = CGpio::GetInstance();
+	instance->StartChatteringTime(&part);
+
+	vector<CGpioTimer*>& part_list = instance->GetChatteringTimeList();
+
+	ASSERT_EQ((unsigned int)1, part_list.size());
+
+	CGpioTimer* timer = part_list.at(0);
+	CPart* part_actual = timer->GetPart();
+	ASSERT_EQ(part_actual, &part);
 
 	instance->Finalize();
 }

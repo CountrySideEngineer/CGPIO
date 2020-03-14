@@ -8,8 +8,10 @@
 #ifndef CGPIO_H_
 #define CGPIO_H_
 #include <map>
+#include <vector>
 #include "CPart.h"
 #include "CSpi.h"
+#include "CGpioTimer.h"
 
 class CPart;
 
@@ -96,6 +98,11 @@ public:
 	virtual int GetSpiHandle() const { return this->spi_handle_; }
 	virtual uint32_t GetSpiFlg() const { return this->spi_flgs_; }
 	virtual map<uint, CPart*>& GetPinMap() { return this->isr_pin_map_; }
+	virtual vector<CGpioTimer*>& GetChatteringTimeList() { return this->chattering_time_list_; }
+
+	virtual void StartChatteringTime(int pin, int level);
+	virtual void StartChatteringTime(CPart* part);
+	virtual void ExpireChatteringTime();
 
 protected:
 	static void GpioInterruptHandle(int gpio, int level, uint32_t tick) {}
@@ -112,6 +119,7 @@ protected:
 	uint32_t	spi_flgs_;
 
 	map<uint, CPart*> isr_pin_map_;
+	vector<CGpioTimer*> chattering_time_list_;
 };
 
 #endif /* CGPIO_H_ */

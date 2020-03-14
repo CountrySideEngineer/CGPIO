@@ -48,7 +48,7 @@ extern int gpioTerminate_ret_val[];
 /*--------------------------------*/
 extern void gpioSetMode_init();
 extern int gpioSetMode(
-	uint Arg1,
+	uint Arg1, 
 	uint Arg2);
 extern int gpioSetMode_called_count;
 extern int gpioSetMode_ret_val[];
@@ -126,7 +126,7 @@ extern uint gpioRead_arg_1[];
 /*------------------------------*/
 extern void gpioWrite_init();
 extern int gpioWrite(
-	uint Arg1,
+	uint Arg1, 
 	uint Arg2);
 extern int gpioWrite_called_count;
 extern int gpioWrite_ret_val[];
@@ -156,8 +156,8 @@ extern uint gpioWrite_arg_2[];
 /*----------------------------*/
 extern void spiOpen_init();
 extern int spiOpen(
-	uint Arg1,
-	uint Arg2,
+	uint Arg1, 
+	uint Arg2, 
 	uint Arg3);
 extern int spiOpen_called_count;
 extern int spiOpen_ret_val[];
@@ -216,8 +216,8 @@ extern uint spiClose_arg_1[];
 /*----------------------------*/
 extern void spiRead_init();
 extern int spiRead(
-	uint Arg1,
-	char* Arg2,
+	uint Arg1, 
+	char* Arg2, 
 	uint Arg3);
 extern int spiRead_called_count;
 extern int spiRead_ret_val[];
@@ -252,8 +252,8 @@ extern uint spiRead_arg_3[];
 /*-----------------------------*/
 extern void spiWrite_init();
 extern int spiWrite(
-	uint Arg1,
-	char* Arg2,
+	uint Arg1, 
+	char* Arg2, 
 	uint Arg3);
 extern int spiWrite_called_count;
 extern int spiWrite_ret_val[];
@@ -288,9 +288,9 @@ extern uint spiWrite_arg_3[];
 /*-----------------------------------*/
 extern void gpioSetISRFunc_init();
 extern int gpioSetISRFunc(
-	uint Arg1,
-	uint Arg2,
-	int Arg3,
+	uint Arg1, 
+	uint Arg2, 
+	int Arg3, 
 	gpioISRFunc_t Arg4);
 extern int gpioSetISRFunc_called_count;
 extern int gpioSetISRFunc_ret_val[];
@@ -322,6 +322,24 @@ extern gpioISRFunc_t gpioSetISRFunc_arg_4[];
 	(gpioSetISRFunc_ret_val[idx])
 #define	SET_GPIOSETISRFUNC_RET_VAL(idx, value)	\
 	(gpioSetISRFunc_ret_val[idx] = value)
+
+/*-----------------------------*/
+/*----                     ----*/
+/*---- Start gpioTick stub ----*/
+/*----                     ----*/
+/*-----------------------------*/
+extern void gpioTick_init();
+extern uint32_t gpioTick();
+extern int gpioTick_called_count;
+extern int gpioTick_ret_val[];
+#define	GET_GPIOTICK_CALLED_COUNT()	\
+	(gpioTick_called_count)
+#define	SET_GPIOTICK_CALLED_COUNT(value)	\
+	(gpioTick_called_count = value)
+#define	GET_GPIOTICK_RET_VAL(idx)	\
+	(gpioTick_ret_val[idx])
+#define	SET_GPIOTICK_RET_VAL(idx, value)	\
+	(gpioTick_ret_val[idx] = value)
 
 #ifdef __cplusplus
 }
