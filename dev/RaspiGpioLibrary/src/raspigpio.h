@@ -14,5 +14,6 @@
 #include "CGpio.h"
 #include "CPart.h"
 #include "CSpi.h"
+#include "CGpioTimer.h"
 
 #endif /* RASPIGPIO_H_ */
