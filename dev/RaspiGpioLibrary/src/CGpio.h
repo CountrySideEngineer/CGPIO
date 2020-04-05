@@ -84,6 +84,7 @@ public:
 	virtual uint8_t GetMode(uint8_t pin);
 	virtual void Write(uint8_t pin, uint8_t value);
 	virtual uint8_t Read(uint8_t pin);
+	virtual int SetIsr(uint edge, CPart* part);
 	virtual int SetIsr(uint pin, uint edge, CPart* part);
 	virtual int SetSpi(const CSpi& spi_config);
 	virtual int SetSpi(const int spi_clock, const uint32_t spi_flg);

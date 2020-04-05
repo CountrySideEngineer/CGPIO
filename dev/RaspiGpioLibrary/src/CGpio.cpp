@@ -150,6 +150,21 @@ uint8_t CGpio::Read(uint8_t pin)
 }
 
 /**
+ * @param	Register interrupt object called when an interrupt detected on
+ * 			the GPIO pin a H/W, abstracted as CPart, part.
+ * @param	edge	The change type the interrupt to be detected, hight to low
+ * 					(low edge), low to high (high edge), or both.
+ * @param	part	Pointer to object to handle the interrupt.
+ * @return	Returns the result of regist. Returns 0 if the regist succeeded,
+ * 			otherwise return none-zero value.
+ * @remarks	This method calls overloaded SetIsr() inside.
+ */
+int CGpio::SetIsr(uint edge, CPart* part)
+{
+	return this->SetIsr((int)part->GetPin(), edge, part);
+}
+
+/**
  * @param	Register interrupt object called when an interrutp detected on
  * 			the GPIO pin.
  * @param	pin	GPIO pin number an interrupt to be detected.
@@ -208,16 +223,6 @@ void CGpio::Interrupt(int pin, int level, uint32_t tick)
 }
 
 /**
- * @brief	Callback function when the timer to check whether the chattering
- * 			time has expired or not is dispatched.
- */
-void CGpio::ChatteringTimerDispatcher()
-{
-	CGpio* instance = CGpio::GetInstance();
-	instance->ExpireChatteringTime();
-}
-
-/**
  * @brief	Start waiting while chattering.
  *
  * @param	pin	GPIO pin number.
@@ -248,6 +253,16 @@ void CGpio::StartChatteringTime(CPart* part)
 {
 	CGpioTimer* timer = new CGpioTimer(part, gpioTick());
 	this->chattering_time_list_.push_back(timer);
+}
+
+/**
+ * @brief	Callback function when the timer to check whether the chattering
+ * 			time has expired or not is dispatched.
+ */
+void CGpio::ChatteringTimerDispatcher()
+{
+	CGpio* instance = CGpio::GetInstance();
+	instance->ExpireChatteringTime();
 }
 
 /**
