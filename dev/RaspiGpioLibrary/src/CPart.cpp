@@ -104,8 +104,8 @@ uint32_t CPart::Send(uint8_t* data, uint32_t data_size)
 	assert(nullptr != data);
 
 	uint32_t send_result = 0;
-	CGpio* instance = CGpio::GetInstance();
-	int write_result = instance->SpiWrite(data, data_size);
+	CGpio* gpio = CGpio::GetInstance();
+	int write_result = gpio->SpiWrite(data, (const uint32_t)data_size);
 	if (write_result < 0) {
 		send_result = (uint32_t)(-1);	//All bit is 1.
 	} else {
@@ -125,8 +125,8 @@ uint32_t CPart::Recv(uint8_t* data, uint32_t data_size)
 	assert(nullptr != data);
 
 	uint32_t recv_result = 0;
-	CGpio* instance = CGpio::GetInstance();
-	int read_result = instance->SpiRead(data, data_size);
+	CGpio* gpio = CGpio::GetInstance();
+	int read_result = gpio->SpiRead(data, (const uint32_t)data_size);
 	if (read_result < 0) {
 		recv_result = (uint32_t)(-1);
 	} else {
