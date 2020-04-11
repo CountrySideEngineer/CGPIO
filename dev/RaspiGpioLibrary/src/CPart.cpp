@@ -14,24 +14,45 @@
 CPart::CPart()
 : pin_(0)
 , mode_(0)
+, edge_(ISR_EDGE_MAX)
 , chattering_time_(0)
 {}
 
 /**
  * @brief	Constructor with parameters, GPIO pin number, GPIO access direction
- * 			input or output, and pointer to GPIO abstracting object.
- * @param[in]	gpio	Pointer to object abstracting GPIO, H/W interface.
+ * 			input or output.
  * @param	pin	GPIO pin number the part uses.
  * @param	mode	GPIO pin access mode, input or output.
- * @param	chattering_time	Time to wait while H/W chattering.
- * 							The default value is zero, meaning no chattering
- * 							wait.
  */
-CPart::CPart(uint8_t pin, uint8_t mode, uint32_t chattering_time)
+CPart::CPart(uint8_t pin, uint8_t mode)
 : pin_(pin)
 , mode_(mode)
-, chattering_time_(chattering_time)
+, edge_(ISR_EDGE_MAX)
+, chattering_time_(0)
 {}
+
+/**
+ * @brief	Constructor with parameters, GPIO pin number, GPIO access direction,
+ * 			input or output, edge of level to detect interruption, and
+ * 			chattering time.
+ * @param	pin	GPIO pin number the part uses.
+ * @param	mode	GPIO pin access mode, input or output.
+ * @param	edge	Change of level to notify interruption occurred.
+ * @param	chattering_time	Time to wait while H/W chattering in milli second.
+ * 							The default value is zero, meaning no chattering
+ * 							wait.
+ * 							Default value is zero.
+ */
+CPart::CPart(uint8_t pin, uint8_t mode, uint8_t edge, uint32_t chattering_time)
+: pin_(pin)
+, mode_(mode)
+, edge_(edge)
+, chattering_time_(chattering_time)
+{
+	CGpio* gpio = CGpio::GetInstance();
+	gpio->SetMode(pin, mode);
+	gpio->SetIsr(this->edge_, this);
+}
 
 /**
  * @brief	Destructor.

@@ -23,8 +23,10 @@ using namespace std;
 CGpio::CGpio()
 : spi_handle_(-1)
 , spi_flgs_(0)
+, is_chattering_timer_start_(false)
 {
 	this->isr_pin_map_.clear();
+	this->critical_section_map_.clear();
 	this->chattering_time_list_.clear();
 
 	CGpio::Initialize();
@@ -182,6 +184,7 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
 	if (this->isr_pin_map_.end() == this->isr_pin_map_.find(pin)) {
 		//The pin has not been registered as interrupt service register.
 		this->isr_pin_map_.insert(make_pair(pin, part));
+		this->critical_section_map_.insert(make_pair(pin, false));
 		set_isr_result =
 				gpioSetISRFunc(pin, edge, 0, CGpio::GpioInterruptHandle);
 		if (GPIO_ERROR_OK == set_isr_result) {
@@ -216,31 +219,59 @@ int CGpio::SetIsr(uint pin, uint edge, CPart* part)
  * @param	level	Levle of GPIO pin the interrupt detected, LOW or HIGH.
  * @param	tick	The passed tick count
  */
-void CGpio::Interrupt(int pin, int level, uint32_t tick)
+void CGpio::GpioInterruptHandle(int gpio, int level, uint32_t tick)
 {
+	DLOG("Interrupt detected : pin = %d / level = %d", gpio, level);
+
 	CGpio* instance = CGpio::GetInstance();
-	instance->StartChatteringTime(pin, level);
+	map<uint, CPart*>& isr_pin_map = instance->GetPinMap();
+	auto isr_pin_item = isr_pin_map.find(gpio);
+	if (isr_pin_item == isr_pin_map.end()) {
+		WLOG("Interrupt to unexpected gpio pin %d has been detected.", gpio);
+	} else {
+		CPart* part = isr_pin_item->second;
+		if (0 == part->GetChatteringTime()) {
+			part->InterruptCallback(level);
+		} else {
+			instance->StartChatteringTime(part);
+		}
+	}
 }
 
 /**
- * @brief	Start waiting while chattering.
- *
- * @param	pin	GPIO pin number.
- * @param	level	GPIO pin level when the timer starts.
+ * @brief	Seutp timer to handle chattering of H/W.
  */
-void CGpio::StartChatteringTime(int pin, int level)
+void CGpio::SetupChatteringTimer()
 {
-	uint interrupt_pin = static_cast<uint>(pin);
-	if (0 == this->isr_pin_map_.count(interrupt_pin)) {
-		//The interrupt detected pin has not been registered.
-		return;
-	}
+	if (false == this->is_chattering_timer_start_) {
+		int set_timer_result = gpioSetTimerFunc(
+				CHATTERING_TIMER_ID,
+				CHATTERING_TIMER_INTERVAL,
+				CGpio::ChatteringTimerDispatcher);
+		if (0 == set_timer_result) {
+			DLOG("The chattering timer starts");
 
-	CPart* part = this->isr_pin_map_.at(interrupt_pin);
-	if (0 == part->GetChatteringTime()) {
-		part->InterruptCallback(level);
+			this->is_chattering_timer_start_ = true;
+		} else {
+			uint16_t err_code = CGpio::GPIO_FATAL_ERROR;
+			string err_message = "";
+			if (PI_BAD_TIMER == set_timer_result) {
+				err_code = GPIO_CHATTERING_TIMER_BAD_ID;
+				err_message = "The ID of timer to handle chattering is invalid.";
+			} else if (PI_BAD_MS == set_timer_result) {
+				err_code = GPIO_CHATTERING_TIMER_BAD_INTERVAL;
+				err_message = "The interval for chattering is invalid.";
+			} else if (PI_TIMER_FAILED == set_timer_result) {
+				err_code = GPIO_CHATTERING_TIMER_FAILED;
+				err_message = "The timer to handle chattering can not start.";
+			}
+			this->is_chattering_timer_start_ = false;
+			WLOG("Chattering timer failed : 0x%04X : %s",
+					err_code, err_message.c_str());
+			throw CGpioException(err_code, err_message);
+		}
 	} else {
-		this->StartChatteringTime(part);
+		DLOG("The chattering timer has already started.");
 	}
 }
 
@@ -251,8 +282,22 @@ void CGpio::StartChatteringTime(int pin, int level)
  */
 void CGpio::StartChatteringTime(CPart* part)
 {
-	CGpioTimer* timer = new CGpioTimer(part, gpioTick());
-	this->chattering_time_list_.push_back(timer);
+	if (false == this->is_chattering_timer_start_) {
+		WLOG("The chattering timer is not running.");
+	} else {
+		if (false == this->critical_section_map_[part->GetPin()]) {
+			/*
+			 * The chattering has not been handled.
+			 */
+			this->critical_section_map_[part->GetPin()] = true;
+
+			std::shared_ptr<CGpioTimer> timer(new CGpioTimer(part, gpioTick()));
+			this->chattering_time_list_.push_back(timer);
+		} else {
+			WLOG("The chattering of pin %d has already been handled",
+					part->GetPin());
+		}
+	}
 }
 
 /**
@@ -274,12 +319,17 @@ void CGpio::ExpireChatteringTime()
 	uint32_t current_tick = gpioTick();
 	auto it = this->chattering_time_list_.begin();
 	while (it != this->chattering_time_list_.end()) {
-		CGpioTimer* gpio_time = *it;
+		shared_ptr<CGpioTimer> gpio_time = *it;
+
 		if (gpio_time->IsExpires(current_tick)) {
 			auto part = gpio_time->GetPart();
+
+			DLOG("The pin %d expired", part->GetPin());
+
 			uint8_t pin_level = part->Read();
 			part->InterruptCallback(pin_level);
 
+			this->critical_section_map_[part->GetPin()] = false;
 			it = this->chattering_time_list_.erase(it);
 		} else {
 			it++;
@@ -520,3 +570,41 @@ int CGpio::SpiWrite(const uint8_t* data, const uint32_t data_size)
 	return write_result;
 }
 
+void CGpio::EnterCriticalSection(int pin)
+{
+	auto it = this->critical_section_map_.find(pin);
+	if (it == this->critical_section_map_.end()) {
+		WLOG("Pin %d has not been ISR.", pin);
+	} else {
+		this->SetCriticalSection(pin, true);
+	}
+}
+
+void CGpio::ExitCriticalSection(int pin)
+{
+	auto it = this->critical_section_map_.find(pin);
+	if (it == this->critical_section_map_.end()) {
+		WLOG("Pin %d has not been ISR.", pin);
+	} else {
+		this->SetCriticalSection(pin, false);
+	}
+}
+
+void CGpio::SetCriticalSection(int pin, bool criticalSection)
+{
+	this->critical_section_map_[pin] = criticalSection;
+}
+
+bool CGpio::IsInCriticalSection(int pin)
+{
+	bool inCriticalSection = false;
+	auto it = this->critical_section_map_.find(pin);
+	if (it == this->critical_section_map_.end()) {
+		WLOG("Pin %d has not been ISR.", pin);
+
+		inCriticalSection = false;
+	} else {
+		inCriticalSection = this->critical_section_map_[pin];
+	}
+	return inCriticalSection;
+}

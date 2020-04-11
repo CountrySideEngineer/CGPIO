@@ -24,10 +24,17 @@ public:
 		GPIO_PIN_OUTPUT,
 		GPIO_PIN_DIRECTION_MAX
 	};
+	enum GPIO_PIN_INTERRUPT_MODE {
+		ISR_EDGE_RISING = 0,
+		ISR_EDGE_FALLING,
+		ISR_EDGE_EITHER,
+		ISR_EDGE_MAX
+	};
 
 public:
 	CPart();
-	CPart(uint8_t pin, uint8_t mode, uint32_t chattering_time = 0);
+	CPart(uint8_t pin, uint8_t mode);
+	CPart(uint8_t pin, uint8_t mode, uint8_t edge, uint32_t chattering_time = 0);
 	virtual ~CPart();
 
 	virtual void SetPin(uint8_t pin);
@@ -46,6 +53,7 @@ public:
 protected:
 	uint8_t		pin_;
 	uint8_t		mode_;
+	uint8_t		edge_;
 	uint32_t	chattering_time_;
 };
 
