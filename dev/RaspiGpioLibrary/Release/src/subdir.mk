@@ -5,16 +5,22 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/CGpio.cpp \
+../src/CGpioException.cpp \
+../src/CGpioTimer.cpp \
 ../src/CPart.cpp \
 ../src/CSpi.cpp 
 
 OBJS += \
 ./src/CGpio.o \
+./src/CGpioException.o \
+./src/CGpioTimer.o \
 ./src/CPart.o \
 ./src/CSpi.o 
 
 CPP_DEPS += \
 ./src/CGpio.d \
+./src/CGpioException.d \
+./src/CGpioTimer.d \
 ./src/CPart.d \
 ./src/CSpi.d 
 
