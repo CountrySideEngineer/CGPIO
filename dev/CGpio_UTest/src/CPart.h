@@ -27,7 +27,8 @@ public:
 
 public:
 	CPart();
-	CPart(uint8_t pin, uint8_t mode, uint32_t chattering_time = 0);
+	CPart(uint8_t pin, uint8_t mode);
+	CPart(uint8_t pin, uint8_t mode, uint8_t edge, uint32_t chattering_time = 0);
 	virtual ~CPart();
 
 	virtual void SetPin(uint8_t pin);
