@@ -6,8 +6,11 @@
  */
 #include <iostream>
 #include "gtest/gtest.h"
+#include "pigpio/pigpio.h"
 #include "CGpio.h"
 #include "CPart.h"
+#include "CGpioTimer.h"
+#include "CGpioException.h"
 #include "gpio_stub.h"
 
 using namespace std;
@@ -54,14 +57,19 @@ TEST(CGpio, SetMode_002)
 	gpioSetMode_ret_val[0] = (-3);
 
 	CGpio* instance = CGpio::GetInstance();
-	int result = instance->SetMode(1,2);
-	uint arg1_0 = gpioSetMode_arg_1[0];
-	uint arg2_0 = gpioSetMode_arg_2[0];
+	try {
+		instance->SetMode(1,2);
+		ASSERT_FALSE(0);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0003, ex.GetCode());
+		ASSERT_STREQ("GPIO access mode is invalid", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-3), result);
-	ASSERT_EQ(1, gpioSetMode_called_count);
-	ASSERT_EQ((uint)1, arg1_0);
-	ASSERT_EQ((uint)2, arg2_0);
+		uint arg1_0 = gpioSetMode_arg_1[0];
+		uint arg2_0 = gpioSetMode_arg_2[0];
+		ASSERT_EQ(1, gpioSetMode_called_count);
+		ASSERT_EQ((uint)1, arg1_0);
+		ASSERT_EQ((uint)2, arg2_0);
+	}
 }
 
 TEST(CGpio, SetMode_003)
@@ -70,14 +78,20 @@ TEST(CGpio, SetMode_003)
 	gpioSetMode_ret_val[0] = (-4);
 
 	CGpio* instance = CGpio::GetInstance();
-	int result = instance->SetMode(0,0);
-	uint arg1_0 = gpioSetMode_arg_1[0];
-	uint arg2_0 = gpioSetMode_arg_2[0];
+	try {
+		instance->SetMode(0,0);
+		ASSERT_FALSE(0);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0004, ex.GetCode());
+		ASSERT_STREQ("GPIO access mode is invalid", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-4), result);
-	ASSERT_EQ(1, gpioSetMode_called_count);
-	ASSERT_EQ((uint)0, arg1_0);
-	ASSERT_EQ((uint)0, arg2_0);
+		uint arg1_0 = gpioSetMode_arg_1[0];
+		uint arg2_0 = gpioSetMode_arg_2[0];
+		ASSERT_EQ(1, gpioSetMode_called_count);
+		ASSERT_EQ((uint)0, arg1_0);
+		ASSERT_EQ((uint)0, arg2_0);
+
+	}
 }
 
 TEST(CGpio, GetMode_001)
@@ -134,15 +148,15 @@ TEST(CGpio, SetSpi_001)
 	ASSERT_EQ(0, spi_handle);
 	ASSERT_EQ((uint32_t)0x0001, spi_flag);
 	ASSERT_EQ(2, gpioSetMode_called_count);
-	ASSERT_EQ((uint)8, gpioSetMode_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioSetMode_arg_1[1]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[0]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioSetMode_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioSetMode_arg_1[1]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[1]);
 	ASSERT_EQ(2, gpioWrite_called_count);
-	ASSERT_EQ((uint)8, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioWrite_arg_1[1]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioWrite_arg_1[1]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[1]);
 }
 
 TEST(CGpio, SetSpi_002)
@@ -151,24 +165,28 @@ TEST(CGpio, SetSpi_002)
 	int spi_flg = 2;
 
 	spiOpen_init();
-
 	spiOpen_ret_val[0] = (-76);
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0010, ex.GetCode());
+		ASSERT_STREQ("SPI error bad channel.", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-5), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+	}
 }
 
 TEST(CGpio, SetSpi_003)
@@ -177,24 +195,29 @@ TEST(CGpio, SetSpi_003)
 	int spi_flg = 2;
 
 	spiOpen_init();
-
 	spiOpen_ret_val[0] = (-78);
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
 
-	ASSERT_EQ((-6), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0011, ex.GetCode());
+		ASSERT_STREQ("SPI error bad speed.", ex.GetMessage().c_str());
+
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+	}
 }
 
 TEST(CGpio, SetSpi_004)
@@ -208,19 +231,25 @@ TEST(CGpio, SetSpi_004)
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+		ASSERT_FALSE(1);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0012, ex.GetCode());
+		ASSERT_STREQ("SPI configuration has bad flags.", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-7), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+	}
 }
 
 TEST(CGpio, SetSpi_005)
@@ -234,19 +263,26 @@ TEST(CGpio, SetSpi_005)
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+		ASSERT_FALSE(1);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0013, ex.GetCode());
+		ASSERT_STREQ("SPI error aux spi.", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-8), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+
+	}
 }
 
 TEST(CGpio, SetSpi_006)
@@ -260,19 +296,26 @@ TEST(CGpio, SetSpi_006)
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+		ASSERT_FALSE(1);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0x0014, ex.GetCode());
+		ASSERT_STREQ("SPI error open failed.", ex.GetMessage().c_str());
 
-	ASSERT_EQ((-9), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+
+	}
 }
 
 TEST(CGpio, SetSpi_007)
@@ -286,19 +329,25 @@ TEST(CGpio, SetSpi_007)
 
 	CGpio* instance = CGpio::GetInstance();
 	instance->Finalize();
-	int result = instance->SetSpi(spi_clock, spi_flg);
-	int arg1 = spiOpen_arg_1[0];
-	int arg2 = spiOpen_arg_2[0];
-	int arg3 = spiOpen_arg_3[0];
-	int spi_handle = instance->GetSpiHandle();
-	uint32_t spi_flag = instance->GetSpiFlg();
+	try {
+		instance->SetSpi(spi_clock, spi_flg);
+		ASSERT_FALSE(1);
+	} catch (CGpioException& ex) {
+		ASSERT_EQ(0xFFFF, ex.GetCode());
+		ASSERT_STREQ("SPI fatal error.", ex.GetMessage().c_str());
 
-	ASSERT_EQ((int)(0xFFFF), result);
-	ASSERT_EQ(0, arg1);
-	ASSERT_EQ(1, arg2);
-	ASSERT_EQ(2, arg3);
-	ASSERT_EQ((-1), spi_handle);
-	ASSERT_EQ((uint32_t)0, spi_flag);
+		int arg1 = spiOpen_arg_1[0];
+		int arg2 = spiOpen_arg_2[0];
+		int arg3 = spiOpen_arg_3[0];
+		int spi_handle = instance->GetSpiHandle();
+		uint32_t spi_flag = instance->GetSpiFlg();
+
+		ASSERT_EQ(0, arg1);
+		ASSERT_EQ(1, arg2);
+		ASSERT_EQ(2, arg3);
+		ASSERT_EQ((-1), spi_handle);
+		ASSERT_EQ((uint32_t)0, spi_flag);
+	}
 }
 
 TEST(CGpio, SetSpi_008)
@@ -356,15 +405,15 @@ TEST(CGpio, SetSpi_009)
 	ASSERT_EQ(0, spi_handle);
 	ASSERT_EQ((uint32_t)0x000D, spi_flag);
 	ASSERT_EQ(2, gpioSetMode_called_count);
-	ASSERT_EQ((uint)8, gpioSetMode_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioSetMode_arg_1[1]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[0]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioSetMode_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioSetMode_arg_1[1]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[1]);
 	ASSERT_EQ(2, gpioWrite_called_count);
-	ASSERT_EQ((uint)8, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioWrite_arg_1[1]);
-	ASSERT_EQ((uint)0, gpioWrite_arg_2[0]);
-	ASSERT_EQ((uint)0, gpioWrite_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioWrite_arg_1[1]);
+	ASSERT_EQ((uint)0, (uint)gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)0, (uint)gpioWrite_arg_2[1]);
 }
 
 TEST(CGpio, SetSpi_010)
@@ -394,15 +443,15 @@ TEST(CGpio, SetSpi_010)
 	ASSERT_EQ(0, spi_handle);
 	ASSERT_EQ((uint32_t)0x0001, spi_flag);
 	ASSERT_EQ(2, gpioSetMode_called_count);
-	ASSERT_EQ((uint)8, gpioSetMode_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioSetMode_arg_1[1]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[0]);
-	ASSERT_EQ((uint)1, gpioSetMode_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioSetMode_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioSetMode_arg_1[1]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetMode_arg_2[1]);
 	ASSERT_EQ(2, gpioWrite_called_count);
-	ASSERT_EQ((uint)8, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)9, gpioWrite_arg_1[1]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[1]);
+	ASSERT_EQ((uint)8, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)7, (uint)gpioWrite_arg_1[1]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[1]);
 }
 
 TEST(CGpio, CloseSPi_001)
@@ -444,9 +493,9 @@ TEST(CGpio, SpiRead_001)
 	int SpiRead_result = instance->SpiRead(&data, data_size);
 	ASSERT_EQ(0, SpiRead_result);
 	ASSERT_EQ(1, spiRead_called_count);
-	ASSERT_EQ((uint)(-1), spiRead_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiRead_arg_1[0]);
 	ASSERT_EQ((char*)&data, spiRead_arg_2[0]);
-	ASSERT_EQ((uint)1, spiRead_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiRead_arg_3[0]);
 }
 
 TEST(CGpio, SpiRead_002)
@@ -511,9 +560,9 @@ TEST(CGpio, SpiWrite_001)
 	int SpiWrite_result = instance->SpiWrite(&data, data_size);
 	ASSERT_EQ(0, SpiWrite_result);
 	ASSERT_EQ(1, spiWrite_called_count);
-	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiWrite_arg_1[0]);
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiWrite_arg_3[0]);
 }
 
 TEST(CGpio, SpiWrite_002)
@@ -530,9 +579,9 @@ TEST(CGpio, SpiWrite_002)
 	int SpiWrite_result = instance->SpiWrite(&data, data_size);
 	ASSERT_EQ((-11), SpiWrite_result);
 	ASSERT_EQ(1, spiWrite_called_count);
-	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiWrite_arg_1[0]);
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiWrite_arg_3[0]);
 }
 
 TEST(CGpio, SpiWrite_003)
@@ -549,9 +598,9 @@ TEST(CGpio, SpiWrite_003)
 	int SpiWrite_result = instance->SpiWrite(&data, data_size);
 	ASSERT_EQ((-11), SpiWrite_result);
 	ASSERT_EQ(1, spiWrite_called_count);
-	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiWrite_arg_1[0]);
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiWrite_arg_3[0]);
 }
 
 TEST(CGpio, SpiWrite_004)
@@ -568,9 +617,9 @@ TEST(CGpio, SpiWrite_004)
 	int SpiWrite_result = instance->SpiWrite(&data, data_size);
 	ASSERT_EQ((-12), SpiWrite_result);
 	ASSERT_EQ(1, spiWrite_called_count);
-	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiWrite_arg_1[0]);
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiWrite_arg_3[0]);
 }
 
 TEST(CGpio, SpiWrite_005)
@@ -587,9 +636,9 @@ TEST(CGpio, SpiWrite_005)
 	int SpiWrite_result = instance->SpiWrite(&data, data_size);
 	ASSERT_EQ((-13), SpiWrite_result);
 	ASSERT_EQ(1, spiWrite_called_count);
-	ASSERT_EQ((uint)(-1), spiWrite_arg_1[0]);
+	ASSERT_EQ((uint)(-1), (uint)spiWrite_arg_1[0]);
 	ASSERT_EQ((char*)(&data), spiWrite_arg_2[0]);
-	ASSERT_EQ((uint)1, spiWrite_arg_3[0]);
+	ASSERT_EQ((uint)1, (uint)spiWrite_arg_3[0]);
 }
 
 TEST(CGpio, SetIsr_001)
@@ -604,8 +653,8 @@ TEST(CGpio, SetIsr_001)
 	int SetIsr_result = instance->SetIsr(1, 2, &part);
 	ASSERT_EQ(0, SetIsr_result);
 	ASSERT_EQ(1, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
 
@@ -625,8 +674,8 @@ TEST(CGpio, SetIsr_002)
 	int SetIsr_result = instance->SetIsr(1, 3, &part);
 	ASSERT_EQ((-14), SetIsr_result);
 	ASSERT_EQ(1, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
 
@@ -645,8 +694,8 @@ TEST(CGpio, SetIsr_003)
 	int SetIsr_result = instance->SetIsr(1, 2, &part);
 	ASSERT_EQ((-3), SetIsr_result);		//GPIO_ERROR_GPIO
 	ASSERT_EQ(1, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
 
@@ -665,8 +714,8 @@ TEST(CGpio, SetIsr_004)
 	int SetIsr_result = instance->SetIsr(1, 2, &part);
 	ASSERT_EQ((-15), SetIsr_result);		//GPIO_ISR_BAD_EDGE
 	ASSERT_EQ(1, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
 
@@ -685,8 +734,8 @@ TEST(CGpio, SetIsr_005)
 	int SetIsr_result = instance->SetIsr(1, 2, &part);
 	ASSERT_EQ((-16), SetIsr_result);		//GPIO_ISR_BAD_EDGE
 	ASSERT_EQ(1, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
 
@@ -708,10 +757,10 @@ TEST(CGpio, SetIsr_006)
 	SetIsr_result = instance->SetIsr(3, 4, &part);
 	ASSERT_EQ(0, SetIsr_result);
 	ASSERT_EQ(2, gpioSetISRFunc_called_count);
-	ASSERT_EQ((uint)1, gpioSetISRFunc_arg_1[0]);
-	ASSERT_EQ((uint)2, gpioSetISRFunc_arg_2[0]);
-	ASSERT_EQ((uint)3, gpioSetISRFunc_arg_1[1]);
-	ASSERT_EQ((uint)4, gpioSetISRFunc_arg_2[1]);
+	ASSERT_EQ((uint)1, (uint)gpioSetISRFunc_arg_1[0]);
+	ASSERT_EQ((uint)2, (uint)gpioSetISRFunc_arg_2[0]);
+	ASSERT_EQ((uint)3, (uint)gpioSetISRFunc_arg_1[1]);
+	ASSERT_EQ((uint)4, (uint)gpioSetISRFunc_arg_2[1]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[0]);
 	ASSERT_EQ(0, gpioSetISRFunc_arg_3[1]);
 	ASSERT_NE((void*)NULL, (void*)gpioSetISRFunc_arg_4[0]);
@@ -732,8 +781,8 @@ TEST(CGpio, Write_001)
 	instance->Write(pin, level);
 
 	ASSERT_EQ(1, gpioWrite_called_count);
-	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)0, gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)0, (uint)gpioWrite_arg_2[0]);
 
 	instance->Finalize();
 }
@@ -750,8 +799,8 @@ TEST(CGpio, Write_002)
 	instance->Write(pin, level);
 
 	ASSERT_EQ(1, gpioWrite_called_count);
-	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[0]);
 
 	instance->Finalize();
 }
@@ -768,8 +817,8 @@ TEST(CGpio, Write_003)
 	instance->Write(pin, level);
 
 	ASSERT_EQ(1, gpioWrite_called_count);
-	ASSERT_EQ((uint)1, gpioWrite_arg_1[0]);
-	ASSERT_EQ((uint)1, gpioWrite_arg_2[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_1[0]);
+	ASSERT_EQ((uint)1, (uint)gpioWrite_arg_2[0]);
 
 	instance->Finalize();
 }
@@ -802,6 +851,23 @@ TEST(CGpio, Read_002)
 
 	ASSERT_EQ(1, gpioRead_called_count);
 	ASSERT_EQ(1, read_value);
+
+	instance->Finalize();
+}
+
+TEST(CGpio, StartChatteringTime_001)
+{
+	CPart part(1, 2, 3);
+	CGpio* instance = CGpio::GetInstance();
+	instance->StartChatteringTime(&part);
+
+	vector<CGpioTimer*>& part_list = instance->GetChatteringTimeList();
+
+	ASSERT_EQ((unsigned int)1, part_list.size());
+
+	CGpioTimer* timer = part_list.at(0);
+	CPart* part_actual = timer->GetPart();
+	ASSERT_EQ(part_actual, &part);
 
 	instance->Finalize();
 }
